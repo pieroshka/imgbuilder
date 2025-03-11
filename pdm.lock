@@ -3,15 +3,21 @@
 
 [metadata]
 groups = ["default", "dev"]
-strategy = ["cross_platform"]
-lock_version = "4.4"
-content_hash = "sha256:9e102fd968c1b30036ce15ea6fef4ad8213e427d2695f4c6b399573e3ccab229"
+strategy = []
+lock_version = "4.5.0"
+content_hash = "sha256:33fad7d5f8be1097b5bd26ba7f6fb28a77c32047e1403f4f859e8c6201ff3cba"
+
+[[metadata.targets]]
+requires_python = ">=3.11"
 
 [[package]]
 name = "attrs"
 version = "23.1.0"
 requires_python = ">=3.7"
 summary = "Classes Without Boilerplate"
+dependencies = [
+    "importlib-metadata; python_version < \"3.8\"",
+]
 files = [
     {file = "attrs-23.1.0-py3-none-any.whl", hash = "sha256:1f28b4522cdc2fb4256ac1a020c78acf9cba2c6b461ccd2c126f3aa8e8335d04"},
     {file = "attrs-23.1.0.tar.gz", hash = "sha256:6279836d581513a26f1bf235f9acd333bc9115683f14f7e8fae46c98fc50e015"},
@@ -24,6 +30,8 @@ requires_python = ">=3.7"
 summary = "Composable complex class support for attrs and dataclasses."
 dependencies = [
     "attrs>=20",
+    "exceptiongroup; python_version < \"3.11\"",
+    "typing-extensions>=4.1.0; python_version < \"3.11\"",
 ]
 files = [
     {file = "cattrs-23.1.2-py3-none-any.whl", hash = "sha256:b2bb14311ac17bed0d58785e5a60f022e5431aca3932e3fc5cc8ed8639de50a4"},
@@ -64,6 +72,7 @@ dependencies = [
     "jedi<0.20.0,>=0.19.0",
     "lsprotocol>=2022.0.0a9",
     "pygls<2.0.0,>=1.0.1",
+    "typing-extensions<5.0.0,>=4.5.0; python_version < \"3.10\"",
 ]
 files = [
     {file = "jedi_language_server-0.41.1-py3-none-any.whl", hash = "sha256:ca9b3e7f48b70f0988d85ffde4f01dd1ab94c8e0f69e8c6424e6657117b44f91"},
@@ -85,11 +94,11 @@ files = [
 
 [[package]]
 name = "libvirt-python"
-version = "9.8.0"
+version = "11.1.0"
 requires_python = ">=3.6"
-summary = "The libvirt virtualization API python binding"
+summary = ""
 files = [
-    {file = "libvirt-python-9.8.0.tar.gz", hash = "sha256:4069ecb226eab1b810728ef62a9c993a592b2258b0ff489937addd560020a5f1"},
+    {file = "libvirt-python-11.1.0.tar.gz", hash = "sha256:00efb9a781087668512d6a002eb9cd136e44ff8701ac6793cc13b6fdc6d9ef8f"},
 ]
 
 [[package]]
@@ -142,6 +151,7 @@ requires_python = ">=3.8"
 summary = "Optional static typing for Python"
 dependencies = [
     "mypy-extensions>=1.0.0",
+    "tomli>=1.1.0; python_version < \"3.11\"",
     "typing-extensions>=4.1.0",
 ]
 files = [
@@ -240,6 +250,10 @@ name = "typeguard"
 version = "3.0.2"
 requires_python = ">=3.7.4"
 summary = "Run-time type checker for Python"
+dependencies = [
+    "importlib-metadata>=3.6; python_version < \"3.10\"",
+    "typing-extensions>=4.4.0; python_version < \"3.11\"",
+]
 files = [
     {file = "typeguard-3.0.2-py3-none-any.whl", hash = "sha256:bbe993854385284ab42fd5bd3bee6f6556577ce8b50696d6cb956d704f286c8e"},
     {file = "typeguard-3.0.2.tar.gz", hash = "sha256:fee5297fdb28f8e9efcb8142b5ee219e02375509cd77ea9d270b5af826358d5a"},
