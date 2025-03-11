@@ -30,7 +30,7 @@ class Multipass(VM):
         auth: str,
         cpus: int = 4,
         memory: str = "8G",
-        disk: str = "5G",
+        disk: str = "7G",
     ):
         self._authenticate(auth)
 
@@ -52,7 +52,7 @@ class Multipass(VM):
         self._destroy_vm()
 
     def _provision_vm(
-        self, cpus: int = 4, memory: str = "8G", disk: str = "5G"
+        self, cpus: int, memory: str, disk: str
     ) -> None:
         _machine_stats = {"cpus": cpus, "memory": memory, "disk": disk}
         logging.debug(f"Provisioning VM {self._machine_name}: {_machine_stats}")
