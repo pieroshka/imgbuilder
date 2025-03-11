@@ -26,7 +26,7 @@ tasks:
   ensure-deps:
     os: darwin
     cmds:
-      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config
+      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config multipass
     preconditions:
       - brew --version
     internal: true
@@ -34,7 +34,7 @@ tasks:
   generate-iso:
     cmd: pdm run main.py --iso-filename {{.DEBIAN_ISO_FILENAME}} --iso-url {{.DEBIAN_ISO_URL}} --target-config-name {{.TARGET_CONFIG}} --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} --multipass-auth {{.MULTIPASS_AUTH}}
     desc: Generate a preseeded Debian ISO
-    interactive: true
+    interactive: true # multipass will ask for sudo priviledges
     sources:
       - templates/firstboot-setup.sh.j2
       - templates/preseed-setup.sh.j2
