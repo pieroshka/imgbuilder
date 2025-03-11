@@ -12,17 +12,23 @@ tasks:
   ensure-pdm:
     cmd: pdm install
     desc: Ensure the pdm is initiated and a virtual environment is created
+    preconditions:
+      - pdm --version
     internal: true
 
   purge-multipass:
     cmd: multipass stop --all && multipass delete --all && multipass purge
     desc: Ensure no multipass machines exist
+    preconditions:
+      - multipass --version
     internal: true
 
   ensure-deps:
     os: darwin
     cmds:
       - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config
+    preconditions:
+      - brew --version
     internal: true
 
   generate-iso:
