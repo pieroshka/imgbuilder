@@ -1,0 +1,23 @@
+[project]
+name = ""
+version = ""
+description = ""
+authors = [
+    {name = "Emilia", email = "voxelost@proton.me"},
+]
+dependencies = [
+    "libvirt-python>=9.8.0",
+    "jinja2>=3.1.2",
+    "PyYAML>=6.0.1",
+    "passlib>=1.7.4",
+    "qemu-qmp>=0.0.3",
+]
+requires-python = ">=3.11"
+readme = "README.md"
+license = {text = "MIT"}
+
+[tool.pdm.dev-dependencies]
+dev = [
+    "jedi-language-server>=0.41.1",
+    "mypy>=1.6.0",
+]

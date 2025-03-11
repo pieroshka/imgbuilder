@@ -1,0 +1,36 @@
+#!/bin/bash
+
+{% if apt.update %}
+    apt-get update
+{% endif %}
+
+{% if apt.upgrade %}
+    apt-get -y upgrade
+{% endif %}
+
+sysctl -w vm.swappiness=1
+# Persist with
+echo 'vm.swappiness = 1' | tee -a /etc/sysctl.d/99-sysctl-swappiness.conf
+sysctl -p /etc/sysctl.d/99-sysctl-swappiness.conf
+
+{% for network_interface in network.interfaces %}
+    # setup network interface {{ network_interface.name }}
+    {{ network_interface.creation_steps | join("\n") }}
+{% endfor %}
+
+# start and enable the default network for libvirt
+virsh net-start default
+virsh net-autostart default
+
+{{ script.firstboot.additional_steps | join("\n") }}
+
+# self-cleanup
+{% if not debug %}
+    systemctl disable firstboot.service
+    rm -f /etc/systemd/system/firstboot.service
+    rm -f {{ script.firstboot.location }}
+{% else %}
+    systemctl disable firstboot.service
+    mkdir -p /root/.debug
+    mv /etc/systemd/system/firstboot.service {{ script.firstboot.location }} /root/.debug
+{% endif %}

@@ -1,0 +1,6 @@
+*.iso
+.cache
+.out
+.env
+configs/*
+!configs/example.*

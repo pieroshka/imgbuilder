@@ -1,0 +1,64 @@
+version: '3'
+
+vars:
+  DEBIAN_NEWEST: 'FALSE'
+  DEBIAN_ISO_VERSION: 12.2.0 # 11.7.0
+  TARGET_CONFIG: thinkpad
+  MULTIPASS_AUTH: totoro
+  DEBIAN_ISO_FILENAME: debian-{{.DEBIAN_ISO_VERSION}}-amd64-netinst.iso
+  PRESEEDED_ISO_FILENAME: preseeded-{{.TARGET_CONFIG}}-{{.DEBIAN_ISO_FILENAME}}
+
+tasks:
+  ensure-pdm:
+    cmd: pdm install
+    desc: Ensure the pdm is initiated and a virtual environment is created
+    internal: true
+
+  purge-multipass:
+    cmd: multipass stop --all && multipass delete --all && multipass purge
+    desc: Ensure no multipass machines exist
+    internal: true
+
+  generate-iso:
+    cmd: pdm run main.py --iso-filename {{.DEBIAN_ISO_FILENAME}} --iso-url {{.DEBIAN_ISO_URL}} --target-config-name {{.TARGET_CONFIG}} --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} --multipass-auth {{.MULTIPASS_AUTH}}
+    desc: Generate a preseeded Debian ISO
+    interactive: true
+    sources:
+      - templates/firstboot-setup.sh.j2
+      - templates/preseed-setup.sh.j2
+      - templates/firstboot.service.j2
+      - templates/preseed.cfg.j2
+      - templates/qemu.cfg.j2
+      - utils/configs/nuc.py
+      - utils/configs/thinkpad.py
+      - utils/models/config.py
+    generates:
+      - .out/{{.PRESEEDED_ISO_FILENAME}}
+    requires:
+      vars:
+        - PRESEEDED_ISO_FILENAME
+    vars:
+      DEBIAN_CD_SOURCE: '{{if eq .DEBIAN_NEWEST "TRUE"}}debian-cd{{else}}cdimage/archive{{end}}'
+      DEBIAN_ISO_URL: https://cdimage.debian.org/{{.DEBIAN_CD_SOURCE}}/{{.DEBIAN_ISO_VERSION}}/amd64/iso-cd/{{.DEBIAN_ISO_FILENAME}}
+    env:
+      LOG_LEVEL: DEBUG
+    dir: src
+    deps:
+      - task: purge-multipass
+      - task: ensure-pdm
+
+  flash-usb:
+    desc: This task assumes A LOT and will be removed at some point
+    deps:
+      - task: generate-iso
+    preconditions:
+      - "[ -d src/.out ]"
+    vars:
+      MEDIA_DEVICE: '{{default "/dev/disk4" .MEDIA_DEVICE}}'
+    requires:
+      vars:
+        - PRESEEDED_ISO_FILENAME
+    cmds:
+      - hdiutil unmount {{.MEDIA_DEVICE}}
+      - diskutil unmountDisk {{.MEDIA_DEVICE}}
+      - sudo dd if=src/.out/{{.PRESEEDED_ISO_FILENAME}} of={{.MEDIA_DEVICE}} bs=4M status=progress

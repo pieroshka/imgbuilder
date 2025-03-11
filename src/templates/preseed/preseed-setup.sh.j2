@@ -1,0 +1,43 @@
+#!/bin/sh
+
+# delete placeholder user enforced by debian-installer
+userdel -r placeholder
+
+# setup authorized keys for user root
+mkdir -p /root/.ssh
+[ -f /root/.ssh/authorized_keys ] || touch /root/.ssh/authorized_keys
+{% for public_key in root_user.authorized_keys %}
+    echo '{{ public_key }}' >> /root/.ssh/authorized_keys
+{% endfor %}
+chown -R root:root /root/.ssh/
+chmod 644 /root/.ssh/authorized_keys
+chmod 700 /root/.ssh/
+
+{% for user in users %}
+    # create user
+    useradd --create-home --password '{{ user.password_hash }}' --groups sudo --shell /bin/bash {{ user.name }}
+
+    # setup authorized keys for user {{ user.name }}
+    mkdir -p /home/{{ user.name }}/.ssh
+
+    [ -f /home/{{ user.name }}/.ssh/authorized_keys ] || touch /home/{{ user.name }}/.ssh/authorized_keys
+    {% for public_key in user.authorized_keys %}
+        echo '{{ public_key }}' >> /home/{{ user.name }}/.ssh/authorized_keys
+    {% endfor %}
+
+    chown -R {{ user.name }}:{{ user.name }} /home/{{ user.name }}/.ssh/
+    chmod 644 /home/{{ user.name }}/.ssh/authorized_keys
+    chmod 700 /home/{{ user.name }}/.ssh/
+
+    # allow passwordless sudo for user {{ user.name }}
+    mkdir -p /etc/sudoers.d
+    echo '{{ user.name }} ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers.d/{{ user.name }}
+
+    {% if user.libvirt_user %}
+        usermod -aG kvm '{{ user.name }}'
+        usermod -aG libvirt '{{ user.name }}'
+    {% endif %}
+{% endfor %}
+
+
+{{ script.preseed.additional_steps | join("\n") }}
