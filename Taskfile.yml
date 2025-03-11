@@ -54,18 +54,6 @@ tasks:
       - task: ensure-pdm
       - task: ensure-deps
 
-  flash-usb:
-    desc: This task assumes A LOT and will be removed at some point
-    deps:
-      - task: generate-iso
-    preconditions:
-      - "[ -d src/.out ]"
-    vars:
-      MEDIA_DEVICE: '{{default "/dev/disk4" .MEDIA_DEVICE}}'
-    requires:
-      vars:
-        - PRESEEDED_ISO_FILENAME
+  default:
     cmds:
-      - hdiutil unmount {{.MEDIA_DEVICE}}
-      - diskutil unmountDisk {{.MEDIA_DEVICE}}
-      - sudo dd if=src/.out/{{.PRESEEDED_ISO_FILENAME}} of={{.MEDIA_DEVICE}} bs=4M status=progress
+      - task: generate-iso
