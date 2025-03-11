@@ -1,10 +1,10 @@
-version: '3'
+version: "3"
 
 vars:
-  DEBIAN_NEWEST: 'FALSE'
+  DEBIAN_NEWEST: "FALSE"
   DEBIAN_ISO_VERSION: 12.2.0 # 11.7.0
   TARGET_CONFIG: thinkpad
-  MULTIPASS_AUTH: totoro
+  MULTIPASS_AUTH: totoro # this needs to be set beforehand using `multipass set local.passphrase`
   DEBIAN_ISO_FILENAME: debian-{{.DEBIAN_ISO_VERSION}}-amd64-netinst.iso
   PRESEEDED_ISO_FILENAME: preseeded-{{.TARGET_CONFIG}}-{{.DEBIAN_ISO_FILENAME}}
 
@@ -17,6 +17,12 @@ tasks:
   purge-multipass:
     cmd: multipass stop --all && multipass delete --all && multipass purge
     desc: Ensure no multipass machines exist
+    internal: true
+
+  ensure-deps:
+    os: darwin
+    cmds:
+      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config
     internal: true
 
   generate-iso:
@@ -46,6 +52,7 @@ tasks:
     deps:
       - task: purge-multipass
       - task: ensure-pdm
+      - task: ensure-deps
 
   flash-usb:
     desc: This task assumes A LOT and will be removed at some point
