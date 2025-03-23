@@ -8,31 +8,36 @@ vars:
   DEBIAN_ISO_FILENAME: debian-{{.DEBIAN_ISO_VERSION}}-amd64-netinst.iso
   PRESEEDED_ISO_FILENAME: preseeded-{{.TARGET_CONFIG}}-{{.DEBIAN_ISO_FILENAME}}
 
+includes:
+  ensure-deps:
+    taskfile: ./Taskfile_{{OS}}.yml
+    flatten: true
+
 tasks:
-  ensure-pdm:
+  ensure-project:
     cmd: pdm install
     desc: Ensure the pdm is initiated and a virtual environment is created
     preconditions:
       - pdm --version
+    deps:
+      - task: ensure-deps
     internal: true
 
   purge-multipass:
-    cmd: multipass stop --all && multipass delete --all && multipass purge
+    # will require `multipass set local.passphrase` set to `totoro`
+    cmds: 
+      - multipass stop --all
+      - multipass delete --all
+      - multipass purge
     desc: Ensure no multipass machines exist
     preconditions:
       - multipass --version
     internal: true
-
-  ensure-deps:
-    os: darwin
-    cmds:
-      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config multipass
-    preconditions:
-      - brew --version
-    internal: true
-
+  
   generate-iso:
-    cmd: pdm run main.py --iso-filename {{.DEBIAN_ISO_FILENAME}} --iso-url {{.DEBIAN_ISO_URL}} --target-config-name {{.TARGET_CONFIG}} --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} --multipass-auth {{.MULTIPASS_AUTH}}
+    cmds:
+      - task: purge-multipass 
+      - pdm run main.py --iso-filename {{.DEBIAN_ISO_FILENAME}} --iso-url {{.DEBIAN_ISO_URL}} --target-config-name {{.TARGET_CONFIG}} --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} --multipass-auth {{.MULTIPASS_AUTH}}
     desc: Generate a preseeded Debian ISO
     interactive: true # multipass will ask for sudo priviledges
     sources:
@@ -56,10 +61,9 @@ tasks:
       LOG_LEVEL: DEBUG
     dir: src
     deps:
-      - task: purge-multipass
-      - task: ensure-pdm
-      - task: ensure-deps
+      - task: ensure-project
 
   default:
     cmds:
       - task: generate-iso
+      

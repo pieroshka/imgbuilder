@@ -1,0 +1,14 @@
+version: '3'
+
+tasks:
+  ensure-pdm:
+    cmds:
+      - pdm --version || curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+
+  ensure-deps:
+    cmds:
+      - sudo apt-get -y install snapd libvirt-dev libvirt-daemon-system pkg-config
+      - sudo snap install multipass
+      - task: ensure-pdm
+    internal: true
+    interactive: true # could ask for sudo
