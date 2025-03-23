@@ -5,7 +5,7 @@ import uuid
 import os
 import shutil
 import tempfile
-import yaml
+import pathlib
 from jinja2 import Environment, FileSystemLoader
 from functools import cached_property
 from utils.vm import VM
@@ -74,7 +74,7 @@ class Multipass(VM):
             f"sudo multipass authenticate {auth}",
         )
 
-    def _build_command(
+    def _build_forwarded_cmd(
         self,
         command: str,
         become: bool = True,
@@ -97,8 +97,9 @@ class Multipass(VM):
 
         return f"multipass exec {_workdir} {self._machine_name} -- {_cmd}"
 
-    def _shell_cmd(self, cmd: str, stdin: str = "", pipe: bool = True) -> str:
-        popen_kwargs = {"shell": True, "text": True}
+    # invoke a command on the local machine
+    def _shell_cmd(self, cmd: str, stdin: str | bytes = "", pipe: bool = True) -> str:
+        popen_kwargs = {"shell": True, "text": isinstance(stdin, str)}
 
         if pipe:
             popen_kwargs.update(
@@ -120,19 +121,21 @@ class Multipass(VM):
         else:
             proc.communicate()
 
-    def _send_command(
+    # invoke a command inside the multipass VM
+    def _forward_cmd(
         self,
         command: str,
         become: bool = True,
         cwd: typing.Optional[str] = _workdir,
-        stdin: str = "",
+        stdin: str | bytes = "",
         pipe: bool = True,
     ) -> str:
         logging.debug(f"Running command: {command}")
-        return self._shell_cmd(self._build_command(command, become, cwd), stdin, pipe)
+        return self._shell_cmd(self._build_forwarded_cmd(command, become, cwd), stdin, pipe)
 
     def _transfer(self, src: str, dest: str) -> str:
-        return self._shell_cmd(f"sudo multipass transfer {src} {dest}")
+        with open(src, 'rb') as fptr:
+            return self._shell_cmd(f'multipass transfer - {dest}', stdin=fptr.read())
 
     @cached_property
     def _jinja_env(self) -> Environment:
@@ -144,12 +147,16 @@ class Multipass(VM):
         tempdir = tempfile.mkdtemp()
         return tempdir
 
-    def upload(self, src: str, dest: str = ".") -> str:
-        if not dest.startswith("/"):
-            dest = f"{self._workdir}/{dest}"
+    def upload(self, src: str, dest: str = ".", destdir: bool = True) -> str:
+        parsed_path = pathlib.Path(dest)
+        if not parsed_path.is_absolute():
+            parsed_path = pathlib.Path(self._workdir).joinpath(parsed_path)
+        
+        if destdir:
+            parsed_path = parsed_path.joinpath(pathlib.Path(src).name)
 
         logging.debug(f"Uploading file {os.path.basename(src)}")
-        return self._transfer(src, f"{self._machine_name}:{dest}")
+        return self._transfer(src, f"{self._machine_name}:{parsed_path.as_posix()}")
 
     def download(self, src: str, dest: str = ".") -> str:
         if not src.startswith("/"):
@@ -160,7 +167,7 @@ class Multipass(VM):
         os.makedirs(os.path.abspath(dest), exist_ok=True)
 
         logging.debug(f"Downloading file {os.path.basename(src)}")
-        return self._transfer(f"{self._machine_name}:{src}", _dest)
+        return self._shell_cmd(f"sudo multipass transfer {self._machine_name}:{src} {_dest}")
 
     def upload_rendered_template(
         self, template_name: str, dest_fname: str = None
@@ -174,7 +181,7 @@ class Multipass(VM):
             _rendered_template = _template.render(self.config.as_dict())
             fptr.write(_rendered_template)
 
-        return self.upload(preseed_rendered_fname, dest_fname)
+        return self.upload(preseed_rendered_fname)
 
     def cmd(
         self,
@@ -184,11 +191,4 @@ class Multipass(VM):
         stdin: str = "",
         pipe: bool = True,
     ) -> str:
-        return self._send_command(command, become, cwd, stdin, pipe)
-
-    def write_file(self, dest: str, file_contents: str) -> str:
-        _local_filename = os.path.join(self._tempdir, os.path.basename(dest))
-        with open(_local_filename, "w") as fptr:
-            fptr.write(file_contents)
-
-        return self.upload(_local_filename, dest)
+        return self._forward_cmd(command, become, cwd, stdin, pipe)

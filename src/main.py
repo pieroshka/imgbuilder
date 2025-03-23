@@ -22,3 +22,4 @@ if __name__ == "__main__":
         from builders.raspbian import build_iso
 
     build_iso(**args.__dict__)
+    logging.info("Done")
