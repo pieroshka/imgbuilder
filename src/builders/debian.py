@@ -9,9 +9,10 @@ def build_iso(
     target_config_name: str,
     target_iso_filename: str,
     multipass_auth: str,
-    **_
+    auth_keys: list,
+    **_,
 ):
-    with Multipass(target_config_name, multipass_auth) as multipass:
+    with Multipass(target_config_name, multipass_auth, auth_keys=auth_keys) as multipass:
         """
         https://stackoverflow.com/questions/59940351/how-to-mount-a-memory-filesystem-onto-a-directory
         """

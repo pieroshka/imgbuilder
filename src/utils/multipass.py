@@ -31,10 +31,11 @@ class Multipass(VM):
         cpus: int = 4,
         memory: str = "8G",
         disk: str = "7G",
+        auth_keys: list = [],
     ):
         self._authenticate(auth)
 
-        self.config = get_config(flash_target_config_name)
+        self.config = get_config(flash_target_config_name, auth_keys, auth_keys)
         self._machine_name = f"geniso-{uuid.uuid4()}"
         self._provision_vm(cpus, memory, disk)
         self.cmd(f"mkdir -p {self._workdir}", become=False, cwd=None)

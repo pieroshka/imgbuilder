@@ -11,6 +11,7 @@ if __name__ == "__main__":
     parser.add_argument("--target-iso-filename")
     parser.add_argument("--multipass-auth")
     parser.add_argument('--target-os', default='debian', choices=['debian', 'raspbian', '-'])
+    parser.add_argument('--auth-keys', type=lambda x: x.split(','), required=True, help='Comma-separated list of private keys')
     args = parser.parse_args()
 
     logging.getLogger().setLevel(os.getenv("LOG_LEVEL", "INFO"))
