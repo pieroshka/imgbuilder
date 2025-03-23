@@ -44,7 +44,7 @@ tasks:
         --target-config-name {{.TARGET_CONFIG}} 
         --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} 
         --multipass-auth {{.MULTIPASS_AUTH}}
-        --auth-keys {{.AUTH_KEYS}}
+        --auth-keys '{{.AUTH_KEYS}}'
     desc: Generate a preseeded Debian ISO
     interactive: true # multipass will ask for sudo priviledges
     sources:
