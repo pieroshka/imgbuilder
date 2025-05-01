@@ -5,7 +5,7 @@
 groups = ["default", "dev"]
 strategy = []
 lock_version = "4.5.0"
-content_hash = "sha256:33fad7d5f8be1097b5bd26ba7f6fb28a77c32047e1403f4f859e8c6201ff3cba"
+content_hash = "sha256:11e457aeac3cc627eefe4780d1bb6750cd0dc690c4f84ca6c73b4ef807d396d0"
 
 [[metadata.targets]]
 requires_python = ">=3.11"
@@ -90,15 +90,6 @@ dependencies = [
 files = [
     {file = "Jinja2-3.1.2-py3-none-any.whl", hash = "sha256:6088930bfe239f0e6710546ab9c19c9ef35e29792895fed6e6e31a023a182a61"},
     {file = "Jinja2-3.1.2.tar.gz", hash = "sha256:31351a702a408a9e7595a8fc6150fc3f43bb6bf7e319770cbc0db9df9437e852"},
-]
-
-[[package]]
-name = "libvirt-python"
-version = "11.1.0"
-requires_python = ">=3.6"
-summary = ""
-files = [
-    {file = "libvirt-python-11.1.0.tar.gz", hash = "sha256:00efb9a781087668512d6a002eb9cd136e44ff8701ac6793cc13b6fdc6d9ef8f"},
 ]
 
 [[package]]
@@ -233,16 +224,6 @@ files = [
     {file = "PyYAML-6.0.1-cp312-cp312-win32.whl", hash = "sha256:d483d2cdf104e7c9fa60c544d92981f12ad66a457afae824d146093b8c294c54"},
     {file = "PyYAML-6.0.1-cp312-cp312-win_amd64.whl", hash = "sha256:0d3304d8c0adc42be59c5f8a4d9e3d7379e6955ad754aa9d6ab7a398b59dd1df"},
     {file = "PyYAML-6.0.1.tar.gz", hash = "sha256:bfdf460b1736c775f2ba9f6a92bca30bc2095067b8a9d77876d1fad6cc3b4a43"},
-]
-
-[[package]]
-name = "qemu-qmp"
-version = "0.0.3"
-requires_python = ">=3.7"
-summary = "QEMU Monitor Protocol library"
-files = [
-    {file = "qemu.qmp-0.0.3-py3-none-any.whl", hash = "sha256:9abf451e22c0964580135aef7e2b95c5da0bf63c692426da24fc38b56ff0ac8e"},
-    {file = "qemu.qmp-0.0.3.tar.gz", hash = "sha256:cbc88fbcc115ee943d84447d172c642da120220451416c2f621acf33df1e1010"},
 ]
 
 [[package]]

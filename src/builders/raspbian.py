@@ -10,9 +10,10 @@ def build_iso(
     target_config_name: str,
     target_iso_filename: str,
     multipass_auth: str,
-    **_
+    **_,
 ):
     with Multipass(target_config_name, multipass_auth, disk="10GB") as multipass:
+        raise NotImplementedError("this is a WIP")
         # TODO: implement this logic:
         # https://github.com/raspberrypi/rpi-imager/blob/qml/src/OptionsPopup.qml#L589
 

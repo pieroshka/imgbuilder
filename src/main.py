@@ -7,15 +7,23 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--iso-filename")
     parser.add_argument("--iso-url")
-    parser.add_argument("--target-config-name", choices=['nuc', 'thinkpad'])
+    parser.add_argument("--target-config-name", choices=["nuc", "thinkpad", "wyse"])
     parser.add_argument("--target-iso-filename")
     parser.add_argument("--multipass-auth")
-    parser.add_argument('--target-os', default='debian', choices=['debian', 'raspbian', '-'])
-    parser.add_argument('--auth-keys', type=lambda x: x.split(','), required=True, help='Comma-separated list of private keys')
+    parser.add_argument(
+        "--target-os",
+        default="debian",
+        choices=["debian", "raspbian", "-"],  # todo: proxmox?
+    )
+    parser.add_argument(
+        "--auth-keys",
+        type=lambda x: x.split(","),
+        required=True,
+        help="Comma-separated list of private keys",
+    )
     args = parser.parse_args()
 
     logging.getLogger().setLevel(os.getenv("LOG_LEVEL", "INFO"))
-
 
     if args.target_os == "debian":
         from builders.debian import build_iso

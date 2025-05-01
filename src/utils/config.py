@@ -4,14 +4,23 @@ import yaml
 import collections.abc
 from utils.models.config import Config
 
-class ConfigException(Exception): ...
+
+class ConfigError(Exception): ...
+
 
 def get_config(config: str, root_auth_keys: list, user_auth_keys: list) -> Config:
-    if config == 'nuc':
-        from utils.configs.nuc import NucConfig
-        return NucConfig(root_auth_keys, user_auth_keys)
-    elif config == 'thinkpad':
-        from utils.configs.thinkpad import ThinkpadConfig
-        return ThinkpadConfig(root_auth_keys, user_auth_keys)
-    else:
-        raise ConfigException(f'No config implemented for {config}')
+    match config:
+        case "nuc":
+            from utils.configs.nuc import NucConfig
+
+            return NucConfig(root_auth_keys, user_auth_keys)
+        case "thinkpad":
+            from utils.configs.thinkpad import ThinkpadConfig
+
+            return ThinkpadConfig(root_auth_keys, user_auth_keys)
+        case "wyse":
+            from utils.configs.wyse import WyseConfig
+
+            return WyseConfig(root_auth_keys, user_auth_keys)
+        case _:
+            raise ConfigError(f"No config implemented for {config}")

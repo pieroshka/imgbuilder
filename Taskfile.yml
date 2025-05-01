@@ -1,12 +1,16 @@
 version: "3"
 
+dotenv: [".env"]
+
 vars:
   DEBIAN_NEWEST: "FALSE"
   DEBIAN_ISO_VERSION: 12.2.0 # 11.7.0
-  TARGET_CONFIG: thinkpad
+  TARGET_CONFIG: wyse
   MULTIPASS_AUTH: totoro # this needs to be set beforehand using `multipass set local.passphrase`
   DEBIAN_ISO_FILENAME: debian-{{.DEBIAN_ISO_VERSION}}-amd64-netinst.iso
   PRESEEDED_ISO_FILENAME: preseeded-{{.TARGET_CONFIG}}-{{.DEBIAN_ISO_FILENAME}}
+  MY_ARG:
+    sh: echo "${AUTH_KEY:-}"
 
 includes:
   ensure-deps:
@@ -25,7 +29,7 @@ tasks:
 
   purge-multipass:
     # will require `multipass set local.passphrase` set to `totoro`
-    cmds: 
+    cmds:
       - multipass stop --all
       - multipass delete --all
       - multipass purge
@@ -33,18 +37,18 @@ tasks:
     preconditions:
       - multipass --version
     internal: true
-  
+
   generate-iso:
     cmds:
-      - task: purge-multipass 
-      - > 
-        pdm run main.py 
-        --iso-filename {{.DEBIAN_ISO_FILENAME}} 
-        --iso-url {{.DEBIAN_ISO_URL}} 
-        --target-config-name {{.TARGET_CONFIG}} 
-        --target-iso-filename {{.PRESEEDED_ISO_FILENAME}} 
+      - task: purge-multipass
+      - >
+        pdm run main.py
+        --iso-filename {{.DEBIAN_ISO_FILENAME}}
+        --iso-url {{.DEBIAN_ISO_URL}}
+        --target-config-name {{.TARGET_CONFIG}}
+        --target-iso-filename {{.PRESEEDED_ISO_FILENAME}}
         --multipass-auth {{.MULTIPASS_AUTH}}
-        --auth-keys '{{.AUTH_KEYS}}'
+        --auth-keys '{{.AUTH_KEY}}'
     desc: Generate a preseeded Debian ISO
     interactive: true # multipass will ask for sudo priviledges
     sources:
@@ -52,16 +56,17 @@ tasks:
       - templates/preseed-setup.sh.j2
       - templates/firstboot.service.j2
       - templates/preseed.cfg.j2
-      - templates/qemu.cfg.j2
+      - templates/sshd_config.j2
       - utils/configs/nuc.py
       - utils/configs/thinkpad.py
+      - utils/configs/wyse.py
       - utils/models/config.py
     generates:
       - .out/{{.PRESEEDED_ISO_FILENAME}}
     requires:
       vars:
         - PRESEEDED_ISO_FILENAME
-        - AUTH_KEYS
+        - AUTH_KEY
     vars:
       DEBIAN_CD_SOURCE: '{{if eq .DEBIAN_NEWEST "TRUE"}}debian-cd{{else}}cdimage/archive{{end}}'
       DEBIAN_ISO_URL: https://cdimage.debian.org/{{.DEBIAN_CD_SOURCE}}/{{.DEBIAN_ISO_VERSION}}/amd64/iso-cd/{{.DEBIAN_ISO_FILENAME}}
@@ -74,4 +79,3 @@ tasks:
   default:
     cmds:
       - task: generate-iso
-      

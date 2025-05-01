@@ -1,4 +1,4 @@
-version: '3'
+version: "3"
 
 tasks:
   ensure-pdm:
@@ -7,8 +7,7 @@ tasks:
 
   ensure-deps:
     cmds:
-      - curl -sSL https://pdm-project.org/install-pdm.py | python3 -
-      - HOMEBREW_NO_AUTO_UPDATE=1 brew install libvirt pkg-config multipass
+      - HOMEBREW_NO_AUTO_UPDATE=1 brew install pkg-config multipass
       - task: ensure-pdm
     preconditions:
       - brew --version
