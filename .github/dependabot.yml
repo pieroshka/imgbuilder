@@ -1,0 +1,12 @@
+version: 2
+updates:
+  - package-ecosystem: "pip"
+    directory: "/" # root of the repo
+    schedule:
+      interval: "weekly"
+    allow:
+      - dependency-type: "direct"
+    ignore:
+      - dependency-name: "pdm"
+    open-pull-requests-limit: 5
+    versioning-strategy: "increase" # or "widen"
